@@ -1,0 +1,5 @@
+buen_dia
+mostrar "Inicio del evento" -
+leer :)Evento1 -
+:)Evento1 == :)Evento2 -
+buenas_noches
