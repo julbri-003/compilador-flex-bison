@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
 
 
 
-
+//para ejecutar
 //./interprete programa.txt eventoA eventoB eventoC
 
 //bison -d parser.y
