@@ -1,5 +1,14 @@
 buen_dia
-mostrar "Inicio del evento" -
+
 leer :)Evento1 -
-:)Evento1 == :)Evento2 -
+:)Evento1 == :)Evento1 + "abcde" -
+
+cumple :)Evento1 > "eventoLimiteInferiorExterno" pasa
+    mostrar "es un evento externo" -
+en_cambio cumple :)Evento1 < "eventoLimiteSuperiorInterno" pasa
+    mostrar "es un evento interno" -
+en_cambio
+    mostrar "es un evento no reconocido" -
+punto
+
 buenas_noches

@@ -3,75 +3,99 @@
 #include <stdlib.h>
 #include <string.h>
 
-extern int argc_global;
-extern char **argv_global;
-
 int yylex(void);
-void yyerror(const char *s) { fprintf(stderr, "Error sintáctico: %s\n", s); }
-
-typedef struct {
-    char *str;
-    int num;
-} YYSTYPE_UNION;
-
-#define YYSTYPE YYSTYPE_UNION
+void yyerror(const char *s) {
+    fprintf(stderr, "Error sintáctico: %s\n", s);
+}
 %}
 
-%token BUEN_DIA BUENAS_NOCHES LEER MOSTRAR ASIGNAR SUMAR PESOS MENOR MAYOR FIN
+%union {
+    char *str;
+    int num;
+}
+
+/* Tokens */
+%token BUEN_DIA BUENAS_NOCHES LEER MOSTRAR
+%token CUMPLE PASA EN_CAMBIO PUNTO
+%token ASIGNAR SUMAR PESOS MENOR MAYOR FIN
 %token <str> IDENT STRING
 %token <num> NUMERO
 
 %%
 
 Programa:
-    BUEN_DIA ListaDeSentencias BUENAS_NOCHES { printf("Programa válido ✅\n"); }
-;
+      BUEN_DIA ListaDeSentencias BUENAS_NOCHES
+      { printf("Programa sintácticamente válido\n"); }
+    ;
 
 ListaDeSentencias:
-    Sentencia
-  | Sentencia ListaDeSentencias
-;
+      Sentencia
+    | Sentencia ListaDeSentencias
+    ;
 
 Sentencia:
-    SentenciaAsignacion
-  | SentenciaLectura
-  | SentenciaEscritura
-  | SentenciaComparacion
-;
+      SentenciaAsignacion
+    | SentenciaLectura
+    | SentenciaEscritura
+    | SentenciaComparacion
+    | SentenciaIf
+    ;
 
 SentenciaAsignacion:
-    IDENT ASIGNAR Expresion FIN { printf("Asigno %s := ...\n", $1); }
-;
+      IDENT ASIGNAR Expresion FIN
+    { printf("Asignación detectada: %s == ... (ok)\n", $1); }
+    ;
 
 SentenciaLectura:
-    LEER IDENT FIN { printf("Leo variable %s\n", $2); }
-;
+      LEER IDENT FIN
+    { printf("Lectura detectada: leer %s\n", $2); }
+    ;
 
 SentenciaEscritura:
-    MOSTRAR Expresion FIN { printf("Muestro algo\n"); }
-;
+      MOSTRAR Expresion FIN
+    { printf("Mostrar detectado\n"); }
+    ;
 
 SentenciaComparacion:
-    Expresion PESOS Expresion FIN {
-        if (strcmp($1.str, $3.str) == 0)
-            printf("Comparación: %s == %s → iguales \n", $1.str, $3.str);
-        else
-            printf("Comparación: %s == %s → distintas \n", $1.str, $3.str);
-    }
-;
+      Expresion PESOS Expresion FIN
+    { printf("Comparación (PESOS) detectada\n"); }
+    ;
+
+
+//if anidados
+SentenciaIf:
+      BloqueIf PUNTO
+    { printf("Estructura cumple/pasa/en_cambio/punto correcta\n"); }
+    ;
+
+BloqueIf:
+      CUMPLE Expresion PASA ListaDeSentencias
+      { printf("Bloque IF principal\n"); }
+    | CUMPLE Expresion PASA ListaDeSentencias ListaElseIf
+    ;
+
+ListaElseIf:
+      EN_CAMBIO CUMPLE Expresion PASA ListaDeSentencias
+      | EN_CAMBIO CUMPLE Expresion PASA ListaDeSentencias ListaElseIf
+      | EN_CAMBIO ListaDeSentencias
+    ;
 
 Expresion:
-    Expresion SUMAR Termino { printf("Concateno cadenas\n"); }
-  | Expresion MENOR Termino { printf("Comparo si menor\n"); }
-  | Expresion MAYOR Termino { printf("Comparo si mayor\n"); }
-  | Termino
-;
+      Expresion SUMAR Termino     { $$ = 0; }
+    | Expresion MENOR Termino     { $$ = 0; }
+    | Expresion MAYOR Termino     { $$ = 0; }
+    | Termino
+    ;
 
 Termino:
-    IDENT
-  | NUMERO
-  | STRING
-;
+      IDENT                       { $$ = 0; }
+    | NUMERO                      { $$ = $1; }
+    | STRING                      { $$ = 0; }
+    | '(' Expresion ')'           { $$ = 0; }
+    ;
 
 %%
 
+void yyerror(const char *s) {
+    fprintf(stderr, "Error sintáctico: %s\n", s);
+}
