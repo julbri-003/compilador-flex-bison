@@ -3,10 +3,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+extern int argc_global;
+extern char **argv_global;
+
 int yylex(void);
-void yyerror(const char *s) {
-    fprintf(stderr, "Error sintáctico: %s\n", s);
-}
+void yyerror(const char *s) { fprintf(stderr, "Error sintáctico: %s\n", s); }
 %}
 
 %union {
