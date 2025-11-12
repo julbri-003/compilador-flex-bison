@@ -15,13 +15,17 @@ int condicion_verdadera = 0;
 
 %union {
     char *str;
-    int   bool;
+    int   boolean;
 }
 
+/* tokens */
 %token KW_BUEN_DIA KW_BUENAS_NOCHES KW_LEER KW_MOSTRAR
 %token KW_CUMPLE KW_PASA KW_EN_CAMBIO KW_PUNTO
 %token MAYOR MENOR IGUAL MAS GUION
 %token <str> CADENA
+
+/* <-- importante: declarar el tipo de 'expresion' */
+%type <str> expresion
 
 %%
 
@@ -65,27 +69,29 @@ bloque_condicionales:
 
 expresion_comparacion:
     CADENA MAYOR CADENA
-      {
-          condicion_verdadera = (comparar_cadenas($1, $3) > 0);
-          printf("[DEBUG] Comparo '%s' > '%s' => %d\n", $1, $3, condicion_verdadera);
+      { condicion_verdadera = (comparar_cadenas($1, $3) > 0);
+        printf("[DEBUG] Comparo '%s' > '%s' => %d\n", $1, $3, condicion_verdadera);
       }
   | CADENA MENOR CADENA
-      {
-          condicion_verdadera = (comparar_cadenas($1, $3) < 0);
-          printf("[DEBUG] Comparo '%s' < '%s' => %d\n", $1, $3, condicion_verdadera);
+      { condicion_verdadera = (comparar_cadenas($1, $3) < 0);
+        printf("[DEBUG] Comparo '%s' < '%s' => %d\n", $1, $3, condicion_verdadera);
       }
   | CADENA IGUAL CADENA
-      {
-          condicion_verdadera = (strcmp($1, $3) == 0);
-          printf("[DEBUG] Comparo '%s' == '%s' => %d\n", $1, $3, condicion_verdadera);
+      { condicion_verdadera = (strcmp($1, $3) == 0);
+        printf("[DEBUG] Comparo '%s' == '%s' => %d\n", $1, $3, condicion_verdadera);
       }
     ;
 
 expresion:
     CADENA
+      {
+        /* devolvemos una copia para que $$ tenga ownership propio */
+        $$ = strdup($1);
+      }
   | CADENA MAS CADENA
     {
         $$ = malloc(strlen($1) + strlen($3) + 1);
+        if ($$ == NULL) { yyerror("malloc failed"); YYABORT; }
         strcpy($$, $1);
         strcat($$, $3);
         printf("[DEBUG] Concateno '%s' + '%s' => '%s'\n", $1, $3, $$);
@@ -97,3 +103,4 @@ expresion:
 void yyerror(const char *s) {
     fprintf(stderr, "Error sintáctico: %s\n", s);
 }
+
