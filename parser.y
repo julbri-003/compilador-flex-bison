@@ -3,96 +3,93 @@
 #include <stdlib.h>
 #include <string.h>
 
-extern int argc_global;
-extern char **argv_global;
-
 int yylex(void);
-void yyerror(const char *s) { fprintf(stderr, "Error sintáctico: %s\n", s); }
+void yyerror(const char *s);
+
+int comparar_cadenas(const char *a, const char *b) {
+    return strcmp(a, b);
+}
+
+int condicion_verdadera = 0;
 %}
 
 %union {
     char *str;
-    int num;
+    int   bool;
 }
 
-/* Tokens */
-%token BUEN_DIA BUENAS_NOCHES LEER MOSTRAR
-%token CUMPLE PASA EN_CAMBIO PUNTO
-%token ASIGNAR SUMAR PESOS MENOR MAYOR FIN
-%token <str> IDENT STRING
-%token <num> NUMERO
+%token KW_BUEN_DIA KW_BUENAS_NOCHES KW_LEER KW_MOSTRAR
+%token KW_CUMPLE KW_PASA KW_EN_CAMBIO KW_PUNTO
+%token MAYOR MENOR IGUAL MAS GUION
+%token <str> CADENA
 
 %%
 
-Programa:
-      BUEN_DIA ListaDeSentencias BUENAS_NOCHES
-      { printf("Programa sintácticamente válido\n"); }
+programa:
+    KW_BUEN_DIA sentencias KW_BUENAS_NOCHES
     ;
 
-ListaDeSentencias:
-      Sentencia
-    | Sentencia ListaDeSentencias
+sentencias:
+    sentencia
+  | sentencias sentencia
     ;
 
-Sentencia:
-      SentenciaAsignacion
-    | SentenciaLectura
-    | SentenciaEscritura
-    | SentenciaComparacion
-    | SentenciaIf
+sentencia:
+    KW_LEER CADENA GUION
+  | expresion GUION
+  | instruccion_condicional
+  | KW_MOSTRAR CADENA GUION { printf("%s\n", $2); }
     ;
 
-SentenciaAsignacion:
-      IDENT ASIGNAR Expresion FIN
-    { printf("Asignación detectada: %s == ... (ok)\n", $1); }
+instruccion_condicional:
+    KW_CUMPLE expresion_comparacion KW_PASA bloque_condicionales resto_condicionales KW_PUNTO
     ;
 
-SentenciaLectura:
-      LEER IDENT FIN
-    { printf("Lectura detectada: leer %s\n", $2); }
+resto_condicionales:
+    /* puede haber más en_cambio */
+    | KW_EN_CAMBIO instruccion_condicional
+    | KW_EN_CAMBIO KW_MOSTRAR CADENA GUION
+      {
+          if (!condicion_verdadera)
+              printf("%s\n", $3);
+      }
     ;
 
-SentenciaEscritura:
-      MOSTRAR Expresion FIN
-    { printf("Mostrar detectado\n"); }
+bloque_condicionales:
+    KW_MOSTRAR CADENA GUION
+      {
+          if (condicion_verdadera)
+              printf("%s\n", $2);
+      }
     ;
 
-SentenciaComparacion:
-      Expresion PESOS Expresion FIN
-    { printf("Comparación (PESOS) detectada\n"); }
+expresion_comparacion:
+    CADENA MAYOR CADENA
+      {
+          condicion_verdadera = (comparar_cadenas($1, $3) > 0);
+          printf("[DEBUG] Comparo '%s' > '%s' => %d\n", $1, $3, condicion_verdadera);
+      }
+  | CADENA MENOR CADENA
+      {
+          condicion_verdadera = (comparar_cadenas($1, $3) < 0);
+          printf("[DEBUG] Comparo '%s' < '%s' => %d\n", $1, $3, condicion_verdadera);
+      }
+  | CADENA IGUAL CADENA
+      {
+          condicion_verdadera = (strcmp($1, $3) == 0);
+          printf("[DEBUG] Comparo '%s' == '%s' => %d\n", $1, $3, condicion_verdadera);
+      }
     ;
 
-
-//if anidados
-SentenciaIf:
-      BloqueIf PUNTO
-    { printf("Estructura cumple/pasa/en_cambio/punto correcta\n"); }
-    ;
-
-BloqueIf:
-      CUMPLE Expresion PASA ListaDeSentencias
-      { printf("Bloque IF principal\n"); }
-    | CUMPLE Expresion PASA ListaDeSentencias ListaElseIf
-    ;
-
-ListaElseIf:
-      EN_CAMBIO CUMPLE Expresion PASA ListaDeSentencias
-      | EN_CAMBIO CUMPLE Expresion PASA ListaDeSentencias ListaElseIf
-      | EN_CAMBIO ListaDeSentencias
-    ;
-
-Expresion:
-      Expresion SUMAR Termino     { $$ = 0; }
-    | Expresion MENOR Termino     { $$ = 0; }
-    | Expresion MAYOR Termino     { $$ = 0; }
-    | Termino
-    ;
-
-Termino:
-      IDENT                       { $$ = 0; }
-    | NUMERO                      { $$ = $1; }
-    | STRING                      { $$ = 0; }
-    | '(' Expresion ')'           { $$ = 0; }
+expresion:
+    CADENA
+  | CADENA MAS CADENA
+    {
+        $$ = malloc(strlen($1) + strlen($3) + 1);
+        strcpy($$, $1);
+        strcat($$, $3);
+        printf("[DEBUG] Concateno '%s' + '%s' => '%s'\n", $1, $3, $$);
+    }
     ;
 
 %%

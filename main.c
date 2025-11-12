@@ -23,14 +23,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    printf("Analizando '%s'...\n", argv[1]);
-    if (argc > 2) {
-        printf("Parámetros recibidos:\n");
-        for (int i = 2; i < argc; i++) {
-            printf("  :)Evento%d = %s\n", i - 1, argv[i]);
-        }
-        printf("\n");
-    }
+    printf("Analizando y ejecutando '%s'...\n\n", argv[1]);
 
     int result = yyparse();
 
