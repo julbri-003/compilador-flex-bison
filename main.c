@@ -39,11 +39,16 @@ int main(int argc, char **argv) {
 
 
 //para ejecutar
-//./interprete programa.txt eventoA eventoB eventoC
 
 // win_bison -d parser.y
 // win_flex lexer.l
 //gcc parser.tab.c lex.yy.c main.c -o interprete
 
-//./interprete programa.txt
+//evento interno
+//./interprete programa.txt evento1 
 
+//evento externo
+//./interprete programa.txt eventoZ
+
+//evento no reconocido
+//./interprete programa.txt abcde

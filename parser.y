@@ -6,15 +6,18 @@
 int yylex(void);
 void yyerror(const char *s);
 
-// tabla de símbolos simple (una variable y su valor)
+// variables globales simples
 char variable[256] = "";
 char valor_variable[1024] = "";
 
+// funciones auxiliares
 int comparar_cadenas(const char *a, const char *b) {
     return strcmp(a, b);
 }
 
+// banderas de control de condicionales
 int condicion_verdadera = 0;
+int condicion_cumplida = 0; // <-- nueva variable para manejar el "else if / else"
 %}
 
 /* union y tipos */
@@ -28,20 +31,24 @@ int condicion_verdadera = 0;
 %token MAYOR MENOR COMPARADOR MAS GUION ASIGNACION
 %token <str> CADENA
 
-/* indicamos que 'expresion' devuelve <str> */
+/* tipos de retorno */
 %type <str> expresion expresion_comparacion asignacion
 
 %%
 
+/* PROGRAMA PRINCIPAL */
 programa:
     KW_BUEN_DIA sentencias KW_BUENAS_NOCHES
+    { printf("\nAnálisis sintáctico completado correctamente.\n"); }
     ;
 
+/* Lista de sentencias */
 sentencias:
     sentencia
   | sentencias sentencia
     ;
 
+/* Sentencias posibles */
 sentencia:
     KW_LEER CADENA GUION
   | asignacion GUION
@@ -50,7 +57,7 @@ sentencia:
   | KW_MOSTRAR CADENA GUION   { printf("%s\n", $2); }
     ;
 
-/* ---------------- ASIGNACIÓN: CADENA == expresion ---------------- */
+/* ASIGNACIÓN */
 asignacion:
     CADENA ASIGNACION expresion
       {
@@ -62,32 +69,33 @@ asignacion:
       }
     ;
 
-/* ---------------- CONDICIONALES ---------------- */
+/* CONDICIONAL COMPLETO */
 instruccion_condicional:
     KW_CUMPLE expresion_comparacion KW_PASA bloque_condicionales resto_condicionales KW_PUNTO
+    {
+        condicion_cumplida = 0; // reinicia el estado al comenzar cada bloque condicional
+    }
     ;
 
-/*
- * resto_condicionales puede tener:
- * - nada (solo un bloque cumple)
- * - uno o más en_cambio (con o sin cumple)
- */
+/* ELSE IF / ELSE */
 resto_condicionales:
       /* vacío */
     | KW_EN_CAMBIO KW_CUMPLE expresion_comparacion KW_PASA bloque_condicionales resto_condicionales
     | KW_EN_CAMBIO bloque_condicionales
     ;
 
-/* bloque que se ejecuta si la condición es verdadera */
+/* BLOQUE DE ACCIONES (solo mostrar por ahora) */
 bloque_condicionales:
     KW_MOSTRAR CADENA GUION
       {
-          if (condicion_verdadera)
+          if (!condicion_cumplida && condicion_verdadera) {
               printf("%s\n", $2);
+              condicion_cumplida = 1; // ya se ejecutó un bloque
+          }
       }
     ;
 
-/* ---------------- EXPRESIONES / COMPARACIONES ---------------- */
+/* EXPRESIONES DE COMPARACIÓN */
 expresion_comparacion:
     expresion MAYOR expresion
       {
@@ -106,7 +114,7 @@ expresion_comparacion:
       }
     ;
 
-/* expresion: cadena simple o concatenación */
+/* EXPRESIONES (concatenación recursiva) */
 expresion:
     CADENA
       { $$ = strdup($1); }
