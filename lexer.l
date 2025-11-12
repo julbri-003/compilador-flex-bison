@@ -60,7 +60,9 @@ extern char **argv_global;
 [ \t\r\n]+              ;
 
 
-.                       { printf("[LEXER] Carácter inesperado: %s\n", yytext); }
+.                       {printf("[LEXER] Error léxico: carácter inesperado '%s'\n", yytext);
+                            exit(1);
+                        }
 
 %%
 
