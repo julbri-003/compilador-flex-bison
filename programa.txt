@@ -1,7 +1,8 @@
 buen_dia
 
 leer :)Evento1 -
-:)Evento1 == :)Evento1 + "abcde" - 
+
+:)Evento1 == :)Evento1 + "abcde" -
 
 cumple :)Evento1 > "eventoLimiteInferiorExterno" pasa
     mostrar "es un evento externo" -
@@ -12,3 +13,4 @@ en_cambio
 punto
 
 buenas_noches
+

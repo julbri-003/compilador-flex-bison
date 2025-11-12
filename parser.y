@@ -6,6 +6,10 @@
 int yylex(void);
 void yyerror(const char *s);
 
+// tabla de símbolos simple (una variable y su valor)
+char variable[256] = "";
+char valor_variable[1024] = "";
+
 int comparar_cadenas(const char *a, const char *b) {
     return strcmp(a, b);
 }
@@ -13,19 +17,19 @@ int comparar_cadenas(const char *a, const char *b) {
 int condicion_verdadera = 0;
 %}
 
+/* union y tipos */
 %union {
     char *str;
-    int   boolean;
 }
 
 /* tokens */
 %token KW_BUEN_DIA KW_BUENAS_NOCHES KW_LEER KW_MOSTRAR
 %token KW_CUMPLE KW_PASA KW_EN_CAMBIO KW_PUNTO
-%token MAYOR MENOR IGUAL MAS GUION
+%token MAYOR MENOR COMPARADOR MAS GUION ASIGNACION
 %token <str> CADENA
 
-/* <-- importante: declarar el tipo de 'expresion' */
-%type <str> expresion
+/* indicamos que 'expresion' devuelve <str> */
+%type <str> expresion expresion_comparacion asignacion
 
 %%
 
@@ -40,25 +44,41 @@ sentencias:
 
 sentencia:
     KW_LEER CADENA GUION
-  | expresion GUION
+  | asignacion GUION
+  | expresion_comparacion GUION
   | instruccion_condicional
-  | KW_MOSTRAR CADENA GUION { printf("%s\n", $2); }
+  | KW_MOSTRAR CADENA GUION   { printf("%s\n", $2); }
     ;
 
+/* ---------------- ASIGNACIÓN: CADENA == expresion ---------------- */
+asignacion:
+    CADENA ASIGNACION expresion
+      {
+          strncpy(variable, $1, sizeof(variable)-1);
+          variable[sizeof(variable)-1] = '\0';
+          strncpy(valor_variable, $3, sizeof(valor_variable)-1);
+          valor_variable[sizeof(valor_variable)-1] = '\0';
+          printf("[DEBUG] Asigno a %s el valor '%s'\n", $1, $3);
+      }
+    ;
+
+/* ---------------- CONDICIONALES ---------------- */
 instruccion_condicional:
     KW_CUMPLE expresion_comparacion KW_PASA bloque_condicionales resto_condicionales KW_PUNTO
     ;
 
+/*
+ * resto_condicionales puede tener:
+ * - nada (solo un bloque cumple)
+ * - uno o más en_cambio (con o sin cumple)
+ */
 resto_condicionales:
-    /* puede haber más en_cambio */
-    | KW_EN_CAMBIO instruccion_condicional
-    | KW_EN_CAMBIO KW_MOSTRAR CADENA GUION
-      {
-          if (!condicion_verdadera)
-              printf("%s\n", $3);
-      }
+      /* vacío */
+    | KW_EN_CAMBIO KW_CUMPLE expresion_comparacion KW_PASA bloque_condicionales resto_condicionales
+    | KW_EN_CAMBIO bloque_condicionales
     ;
 
+/* bloque que se ejecuta si la condición es verdadera */
 bloque_condicionales:
     KW_MOSTRAR CADENA GUION
       {
@@ -67,30 +87,33 @@ bloque_condicionales:
       }
     ;
 
+/* ---------------- EXPRESIONES / COMPARACIONES ---------------- */
 expresion_comparacion:
-    CADENA MAYOR CADENA
-      { condicion_verdadera = (comparar_cadenas($1, $3) > 0);
-        printf("[DEBUG] Comparo '%s' > '%s' => %d\n", $1, $3, condicion_verdadera);
+    expresion MAYOR expresion
+      {
+          condicion_verdadera = (comparar_cadenas($1, $3) > 0);
+          printf("[DEBUG] Comparo '%s' > '%s' => %d\n", $1, $3, condicion_verdadera);
       }
-  | CADENA MENOR CADENA
-      { condicion_verdadera = (comparar_cadenas($1, $3) < 0);
-        printf("[DEBUG] Comparo '%s' < '%s' => %d\n", $1, $3, condicion_verdadera);
+  | expresion MENOR expresion
+      {
+          condicion_verdadera = (comparar_cadenas($1, $3) < 0);
+          printf("[DEBUG] Comparo '%s' < '%s' => %d\n", $1, $3, condicion_verdadera);
       }
-  | CADENA IGUAL CADENA
-      { condicion_verdadera = (strcmp($1, $3) == 0);
-        printf("[DEBUG] Comparo '%s' == '%s' => %d\n", $1, $3, condicion_verdadera);
+  | expresion COMPARADOR expresion
+      {
+          condicion_verdadera = (strcmp($1, $3) == 0);
+          printf("[DEBUG] Comparo '%s' $ '%s' => %d\n", $1, $3, condicion_verdadera);
       }
     ;
 
+/* expresion: cadena simple o concatenación */
 expresion:
     CADENA
-      {
-        /* devolvemos una copia para que $$ tenga ownership propio */
-        $$ = strdup($1);
-      }
-  | CADENA MAS CADENA
+      { $$ = strdup($1); }
+  | expresion MAS CADENA
     {
-        $$ = malloc(strlen($1) + strlen($3) + 1);
+        size_t len = strlen($1) + strlen($3) + 1;
+        $$ = malloc(len);
         if ($$ == NULL) { yyerror("malloc failed"); YYABORT; }
         strcpy($$, $1);
         strcat($$, $3);
@@ -103,4 +126,3 @@ expresion:
 void yyerror(const char *s) {
     fprintf(stderr, "Error sintáctico: %s\n", s);
 }
-
