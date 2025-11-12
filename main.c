@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
 //./interprete programa.txt evento1 
 
 //evento externo
-//./interprete programa.txt eventoZ
+//./interprete programa.txt eventoT
 
 //evento no reconocido
-//./interprete programa.txt abcde
+//./interprete programa.txt eventoJ

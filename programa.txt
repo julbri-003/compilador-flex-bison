@@ -4,9 +4,9 @@ leer :)Evento1 -
 
 :)Evento1 == :)Evento1 + "abcde" -
 
-cumple :)Evento1 < "eventoLimiteInferiorExterno" pasa
+cumple :)Evento1 < "eventoInferiorExterno" pasa
     mostrar "es un evento externo" -
-en_cambio cumple :)Evento1 > "eventoLimiteSuperiorInterno" pasa
+en_cambio cumple :)Evento1 > "eventoSuperiorInterno" pasa
     mostrar "es un evento interno" -
 en_cambio
     mostrar "es un evento no reconocido" -
