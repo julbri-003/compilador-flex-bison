@@ -3,9 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* === Agregados para mostrar línea y token === */
-extern int yylineno;   // viene del lexer (Flex)
-extern char *yytext;   // texto del token actual
+//mostrar linea y token
+extern int yylineno;   // contador de lineas del lexer
+extern char *yytext;   // token actual
 
 int yylex(void);
 void yyerror(const char *s);
@@ -33,8 +33,8 @@ int condicion_cumplida = 0;
 }
 
 /* tokens */
-%token KW_BUEN_DIA KW_BUENAS_NOCHES KW_LEER KW_MOSTRAR
-%token KW_CUMPLE KW_PASA KW_EN_CAMBIO KW_PUNTO
+%token BUEN_DIA BUENAS_NOCHES LEER MOSTRAR
+%token CUMPLE PASA EN_CAMBIO PUNTO
 %token MAYOR MENOR COMPARADOR MAS GUION ASIGNACION
 %token <str> CADENA
 
@@ -44,7 +44,7 @@ int condicion_cumplida = 0;
 %%
 
 programa:
-    KW_BUEN_DIA sentencias KW_BUENAS_NOCHES
+    BUEN_DIA sentencias BUENAS_NOCHES
     ;
 
 sentencias:
@@ -53,14 +53,14 @@ sentencias:
     ;
 
 sentencia:
-    KW_LEER CADENA GUION 
+    LEER CADENA GUION 
       {
           printf("Leo el valor '%s'\n", $2);
       }
   | asignacion GUION
   | expresion_comparacion GUION
   | instruccion_condicional
-  | KW_MOSTRAR CADENA GUION   { printf("%s\n", $2); }
+  | MOSTRAR CADENA GUION   { printf("%s\n", $2); }
     ;
 
 asignacion:
@@ -74,28 +74,28 @@ asignacion:
       }
     ;
 
-/* condicionales */
+//condicionales
 instruccion_condicional:
     {
         // reinicio cuando empieza otro if
         condicion_cumplida = 0;
         condicion_verdadera = 0;
     }
-    KW_CUMPLE expresion_comparacion KW_PASA bloque_condicionales resto_condicionales KW_PUNTO
+    CUMPLE expresion_comparacion PASA bloque_condicionales resto_condicionales PUNTO
     {
         // termina el if
     }
     ;
 
 resto_condicionales:
-      /* vacío */
-    | KW_EN_CAMBIO KW_CUMPLE expresion_comparacion KW_PASA bloque_condicionales resto_condicionales
-    | KW_EN_CAMBIO bloque_condicional_else
+      //vacio
+    | EN_CAMBIO CUMPLE expresion_comparacion PASA bloque_condicionales resto_condicionales
+    | EN_CAMBIO bloque_condicional_else
     ;
 
-/* cuando hay condición */
+//cuando hay condicion
 bloque_condicionales:
-    KW_MOSTRAR CADENA GUION
+    MOSTRAR CADENA GUION
       {
           if (!condicion_cumplida && condicion_verdadera) {
               printf("%s\n", $2);
@@ -104,9 +104,9 @@ bloque_condicionales:
       }
     ;
 
-/* else */
+//else
 bloque_condicional_else:
-    KW_MOSTRAR CADENA GUION
+    MOSTRAR CADENA GUION
       {
           if (!condicion_cumplida) {
               printf("%s\n", $2);
@@ -115,7 +115,7 @@ bloque_condicional_else:
       }
     ;
 
-/* comparación */
+//comparación 
 expresion_comparacion:
     expresion MAYOR expresion
       {
@@ -131,7 +131,7 @@ expresion_comparacion:
       }
     ;
 
-/* concatenación */
+// concatenación 
 expresion:
     CADENA
       { $$ = strdup($1); }
@@ -146,10 +146,6 @@ expresion:
 
 %%
 
-/* === yyerror mejorado === */
 void yyerror(const char *s) {
-    fprintf(stderr, "Error sintactico en lanea %d cerca de '%s': %s\n",
-            yylineno, yytext, s);
+    fprintf(stderr, "Error sintactico en linea %d cerca de '%s': %s\n", yylineno, yytext, s);
 }
-
-

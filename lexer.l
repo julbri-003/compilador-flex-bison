@@ -12,15 +12,15 @@ extern char **argv_global;
 
 %%
 
-"buen_dia"              { return KW_BUEN_DIA; }
-"buenas_noches"         { return KW_BUENAS_NOCHES; }
-"leer"                  { return KW_LEER; }
-"mostrar"               { return KW_MOSTRAR; }
+"buen_dia"              { return BUEN_DIA; }
+"buenas_noches"         { return BUENAS_NOCHES; }
+"leer"                  { return LEER; }
+"mostrar"               { return MOSTRAR; }
 
-"cumple"                { return KW_CUMPLE; }
-"pasa"                  { return KW_PASA; }
-"en_cambio"             { return KW_EN_CAMBIO; }
-"punto"                 { return KW_PUNTO; }
+"cumple"                { return CUMPLE; }
+"pasa"                  { return PASA; }
+"en_cambio"             { return EN_CAMBIO; }
+"punto"                 { return PUNTO; }
 
 
 "=="                    { return ASIGNACION; }     

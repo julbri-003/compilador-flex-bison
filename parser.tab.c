@@ -73,9 +73,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* === Agregados para mostrar línea y token === */
-extern int yylineno;   // viene del lexer (Flex)
-extern char *yytext;   // texto del token actual
+//mostrar linea y token
+extern int yylineno;   // contador de lineas del lexer
+extern char *yytext;   // token actual
 
 int yylex(void);
 void yyerror(const char *s);
@@ -125,14 +125,14 @@ enum yysymbol_kind_t
   YYSYMBOL_YYEOF = 0,                      /* "end of file"  */
   YYSYMBOL_YYerror = 1,                    /* error  */
   YYSYMBOL_YYUNDEF = 2,                    /* "invalid token"  */
-  YYSYMBOL_KW_BUEN_DIA = 3,                /* KW_BUEN_DIA  */
-  YYSYMBOL_KW_BUENAS_NOCHES = 4,           /* KW_BUENAS_NOCHES  */
-  YYSYMBOL_KW_LEER = 5,                    /* KW_LEER  */
-  YYSYMBOL_KW_MOSTRAR = 6,                 /* KW_MOSTRAR  */
-  YYSYMBOL_KW_CUMPLE = 7,                  /* KW_CUMPLE  */
-  YYSYMBOL_KW_PASA = 8,                    /* KW_PASA  */
-  YYSYMBOL_KW_EN_CAMBIO = 9,               /* KW_EN_CAMBIO  */
-  YYSYMBOL_KW_PUNTO = 10,                  /* KW_PUNTO  */
+  YYSYMBOL_BUEN_DIA = 3,                   /* BUEN_DIA  */
+  YYSYMBOL_BUENAS_NOCHES = 4,              /* BUENAS_NOCHES  */
+  YYSYMBOL_LEER = 5,                       /* LEER  */
+  YYSYMBOL_MOSTRAR = 6,                    /* MOSTRAR  */
+  YYSYMBOL_CUMPLE = 7,                     /* CUMPLE  */
+  YYSYMBOL_PASA = 8,                       /* PASA  */
+  YYSYMBOL_EN_CAMBIO = 9,                  /* EN_CAMBIO  */
+  YYSYMBOL_PUNTO = 10,                     /* PUNTO  */
   YYSYMBOL_MAYOR = 11,                     /* MAYOR  */
   YYSYMBOL_MENOR = 12,                     /* MENOR  */
   YYSYMBOL_COMPARADOR = 13,                /* COMPARADOR  */
@@ -557,12 +557,12 @@ static const char *yysymbol_name (yysymbol_kind_t yysymbol) YY_ATTRIBUTE_UNUSED;
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
 {
-  "\"end of file\"", "error", "\"invalid token\"", "KW_BUEN_DIA",
-  "KW_BUENAS_NOCHES", "KW_LEER", "KW_MOSTRAR", "KW_CUMPLE", "KW_PASA",
-  "KW_EN_CAMBIO", "KW_PUNTO", "MAYOR", "MENOR", "COMPARADOR", "MAS",
-  "GUION", "ASIGNACION", "CADENA", "$accept", "programa", "sentencias",
-  "sentencia", "asignacion", "instruccion_condicional", "$@1",
-  "resto_condicionales", "bloque_condicionales", "bloque_condicional_else",
+  "\"end of file\"", "error", "\"invalid token\"", "BUEN_DIA",
+  "BUENAS_NOCHES", "LEER", "MOSTRAR", "CUMPLE", "PASA", "EN_CAMBIO",
+  "PUNTO", "MAYOR", "MENOR", "COMPARADOR", "MAS", "GUION", "ASIGNACION",
+  "CADENA", "$accept", "programa", "sentencias", "sentencia", "asignacion",
+  "instruccion_condicional", "$@1", "resto_condicionales",
+  "bloque_condicionales", "bloque_condicional_else",
   "expresion_comparacion", "expresion", YY_NULLPTR
 };
 
@@ -1401,7 +1401,7 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-  case 5: /* sentencia: KW_LEER CADENA GUION  */
+  case 5: /* sentencia: LEER CADENA GUION  */
 #line 57 "parser.y"
       {
           printf("Leo el valor '%s'\n", (yyvsp[-1].str));
@@ -1409,9 +1409,9 @@ yyreduce:
 #line 1410 "parser.tab.c"
     break;
 
-  case 9: /* sentencia: KW_MOSTRAR CADENA GUION  */
+  case 9: /* sentencia: MOSTRAR CADENA GUION  */
 #line 63 "parser.y"
-                              { printf("%s\n", (yyvsp[-1].str)); }
+                           { printf("%s\n", (yyvsp[-1].str)); }
 #line 1416 "parser.tab.c"
     break;
 
@@ -1437,7 +1437,7 @@ yyreduce:
 #line 1438 "parser.tab.c"
     break;
 
-  case 12: /* instruccion_condicional: $@1 KW_CUMPLE expresion_comparacion KW_PASA bloque_condicionales resto_condicionales KW_PUNTO  */
+  case 12: /* instruccion_condicional: $@1 CUMPLE expresion_comparacion PASA bloque_condicionales resto_condicionales PUNTO  */
 #line 85 "parser.y"
     {
         // termina el if
@@ -1445,7 +1445,7 @@ yyreduce:
 #line 1446 "parser.tab.c"
     break;
 
-  case 16: /* bloque_condicionales: KW_MOSTRAR CADENA GUION  */
+  case 16: /* bloque_condicionales: MOSTRAR CADENA GUION  */
 #line 99 "parser.y"
       {
           if (!condicion_cumplida && condicion_verdadera) {
@@ -1456,7 +1456,7 @@ yyreduce:
 #line 1457 "parser.tab.c"
     break;
 
-  case 17: /* bloque_condicional_else: KW_MOSTRAR CADENA GUION  */
+  case 17: /* bloque_condicional_else: MOSTRAR CADENA GUION  */
 #line 110 "parser.y"
       {
           if (!condicion_cumplida) {
@@ -1736,10 +1736,6 @@ yyreturnlab:
 #line 147 "parser.y"
 
 
-/* === yyerror mejorado === */
 void yyerror(const char *s) {
-    fprintf(stderr, "Error sintáctico en línea %d cerca de '%s': %s\n",
-            yylineno, yytext, s);
+    fprintf(stderr, "Error sintactico en linea %d cerca de '%s': %s\n", yylineno, yytext, s);
 }
-
-

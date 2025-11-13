@@ -2,14 +2,14 @@ buen_dia
 
 leer :)Evento1 -
 
-:)Evento1 == :)Evento1 + "abcde" -
+:)Evento1 == :)Evento1 + "SiendoAnalizado" -
 
 cumple :)Evento1 < "eventoInferiorExterno" pasa
-    mostrar "es un evento externo" -
+    mostrar "Es un evento externo" -
 en_cambio cumple :)Evento1 > "eventoSuperiorInterno" pasa
-    mostrar "es un evento interno" -
+    mostrar "Es un evento interno" -
 en_cambio
-    mostrar "es un evento no reconocido" -
+    mostrar "Es un evento no reconocido" -
 punto
 
 buenas_noches

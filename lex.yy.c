@@ -783,42 +783,42 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 YY_RULE_SETUP
 #line 15 "lexer.l"
-{ return KW_BUEN_DIA; }
+{ return BUEN_DIA; }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
 #line 16 "lexer.l"
-{ return KW_BUENAS_NOCHES; }
+{ return BUENAS_NOCHES; }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
 #line 17 "lexer.l"
-{ return KW_LEER; }
+{ return LEER; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
 #line 18 "lexer.l"
-{ return KW_MOSTRAR; }
+{ return MOSTRAR; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
 #line 20 "lexer.l"
-{ return KW_CUMPLE; }
+{ return CUMPLE; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
 #line 21 "lexer.l"
-{ return KW_PASA; }
+{ return PASA; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
 #line 22 "lexer.l"
-{ return KW_EN_CAMBIO; }
+{ return EN_CAMBIO; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
 #line 23 "lexer.l"
-{ return KW_PUNTO; }
+{ return PUNTO; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
