@@ -8,9 +8,10 @@ extern FILE *yyin;
 int argc_global;
 char **argv_global;
 
+
 int main(int argc, char **argv) {
     if (argc < 2) {
-        fprintf(stderr, "Uso: %s <archivo_programa> [parametros...]\n", argv[0]);
+        fprintf(stderr, "Uso: %s <archivo_programa> [parametro...]\n", argv[0]);
         return 1;
     }
 
@@ -28,7 +29,7 @@ int main(int argc, char **argv) {
     int result = yyparse();
 
     if (result == 0)
-        printf("\n Análisis sintáctico completado correctamente.\n");
+        printf("\n Analisis sintactico completado correctamente.\n");
     else
         printf("\n Se encontraron errores sintácticos.\n");
 
