@@ -3,11 +3,11 @@
 
 int yyparse(void);
 extern FILE *yyin;
+extern int yylineno;   // declarado por Flex
 
 // Variables globales para pasar parámetros a Flex/Bison
 int argc_global;
 char **argv_global;
-
 
 int main(int argc, char **argv) {
     if (argc < 2) {
@@ -15,9 +15,14 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    // Guardar los parámetros globales para que el lexer/parser puedan usarlos
     argc_global = argc;
     argv_global = argv;
 
+    // Inicializar el número de línea antes de empezar el análisis
+    yylineno = 1;
+
+    // Abrir el archivo fuente
     yyin = fopen(argv[1], "r");
     if (!yyin) {
         perror("No se pudo abrir el archivo fuente");
@@ -26,16 +31,18 @@ int main(int argc, char **argv) {
 
     printf("Analizando y ejecutando '%s'...\n\n", argv[1]);
 
+    // Llamada al parser
     int result = yyparse();
 
     if (result == 0)
-        printf("\n Analisis sintactico completado correctamente.\n");
+        printf("\nAnalisis sintactico completado correctamente.\n");
     else
-        printf("\n Se encontraron errores sintácticos.\n");
+        printf("\nSe encontraron errores sintacticos.\n");
 
     fclose(yyin);
     return 0;
 }
+
 
 
 

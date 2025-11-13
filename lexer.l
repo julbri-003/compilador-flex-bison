@@ -3,10 +3,12 @@
 #include <string.h>
 #include <stdlib.h>
 #include "parser.tab.h"
+extern int yylineno;
 
 extern int argc_global;
 extern char **argv_global;
 %}
+
 
 %%
 
@@ -28,6 +30,8 @@ extern char **argv_global;
 "+"                     { return MAS; }
 "-"                     { return GUION; }
 
+
+\n                      { yylineno++; }
 
 \:\)[A-Za-z0-9]{1,14}    {
                             if (argc_global > 2) {
@@ -57,8 +61,7 @@ extern char **argv_global;
                         }
 
 
-[ \t\r\n]+              ;
-
+[ \t\r]+              ;
 
 .                       {printf("Error lexico: caracter no reconocido '%s'\n", yytext);
                             exit(1);

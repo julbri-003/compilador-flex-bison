@@ -3,6 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* === Agregados para mostrar línea y token === */
+extern int yylineno;   // viene del lexer (Flex)
+extern char *yytext;   // texto del token actual
+
 int yylex(void);
 void yyerror(const char *s);
 
@@ -10,7 +14,7 @@ void yyerror(const char *s);
 char variable[256] = "";
 char valor_variable[1024] = "";
 
-
+// comparación de cadenas
 int comparar_cadenas(const char *a, const char *b) {
     return strcmp(a, b);
 }
@@ -18,7 +22,10 @@ int comparar_cadenas(const char *a, const char *b) {
 // flags para if
 int condicion_verdadera = 0;
 int condicion_cumplida = 0;
-%} 
+
+%}
+
+%define parse.error verbose 
 
 /* solo usamos cadenas */
 %union {
@@ -59,7 +66,6 @@ sentencia:
 asignacion:
     CADENA ASIGNACION expresion
       {
-          
           strncpy(variable, $1, sizeof(variable)-1);
           variable[sizeof(variable)-1] = '\0';
           strncpy(valor_variable, $3, sizeof(valor_variable)-1);
@@ -81,7 +87,6 @@ instruccion_condicional:
     }
     ;
 
-
 resto_condicionales:
       /* vacío */
     | KW_EN_CAMBIO KW_CUMPLE expresion_comparacion KW_PASA bloque_condicionales resto_condicionales
@@ -99,7 +104,7 @@ bloque_condicionales:
       }
     ;
 
-/*  else  */
+/* else */
 bloque_condicional_else:
     KW_MOSTRAR CADENA GUION
       {
@@ -115,17 +120,14 @@ expresion_comparacion:
     expresion MAYOR expresion
       {
           condicion_verdadera = (comparar_cadenas($1, $3) > 0);
-          //("Comparo '%s' > '%s' => %d\n", $1, $3, condicion_verdadera);
       }
   | expresion MENOR expresion
       {
           condicion_verdadera = (comparar_cadenas($1, $3) < 0);
-          //("Comparo '%s' < '%s' => %d\n", $1, $3, condicion_verdadera);
       }
   | expresion COMPARADOR expresion
       {
           condicion_verdadera = (strcmp($1, $3) == 0);
-          //("Comparo '%s' == '%s' => %d\n", $1, $3, condicion_verdadera);
       }
     ;
 
@@ -139,12 +141,15 @@ expresion:
         $$ = malloc(len);
         strcpy($$, $1);
         strcat($$, $3);
-        //printf("Concateno '%s' + '%s' => '%s'\n", $1, $3, $$);
     }
     ;
 
 %%
 
+/* === yyerror mejorado === */
 void yyerror(const char *s) {
-    fprintf(stderr, "Error sintactico: %s\n", s);
+    fprintf(stderr, "Error sintactico en lanea %d cerca de '%s': %s\n",
+            yylineno, yytext, s);
 }
+
+
