@@ -9,8 +9,8 @@ int argc_global;
 char **argv_global;
 
 int main(int argc, char **argv) {
-    if (argc < 2) {
-        fprintf(stderr, "Uso: %s <archivo_programa> [parametro...]\n", argv[0]);
+    if (argc != 3) {
+        fprintf(stderr, "Espero: %s <archivo_programa> <parametro>\n", argv[0]);
         return 1;
     }
 
